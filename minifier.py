@@ -213,7 +213,6 @@ class BashFileIterator:
             self.pos += 1
 
         assert not self.isInsideGroup(), 'Invalid syntax'
-        # raise StopIteration # XXX I'm not too confident of the purpose of this, but it works without it.
 
     def isEscaped(self):
         return self.pos in self._indices_of_escaped_characters
