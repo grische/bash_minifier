@@ -1,10 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
+# pylint: disable=missing-class-docstring,missing-function-docstring,too-many-public-methods,invalid-name
 
 import sys
 
 
 class BashFileIterator:
-    class _Delimiter(object):
+    class _Delimiter():
         def __init__(self, character, _type=''):
             self.character = character
             # type may be 'AP' or 'AS' (Arithmetic Expansion delimited by (()) or [] respectively),
@@ -19,7 +20,7 @@ class BashFileIterator:
         def __eq__(self, other):
             if isinstance(other, BashFileIterator._Delimiter):
                 return other.character == self.character
-            elif isinstance(other, str):
+            if isinstance(other, str):
                 return other == self.character
             return False
 
@@ -89,18 +90,16 @@ class BashFileIterator:
     def isInsideGroup(self):
         return len(self._delimiters_stack) != 0
 
-    def getPreviousCharacters(self, n, should_not_start_with_escaped=True):
-        """
-        'should_not_start_with_escaped' means return empty string if the first character is escaped 
-        """
+    def getPreviousCharacters(self, n):
+        # return empty string if the first character is escaped
         first_character_index = max(0, self.pos - n)
         if first_character_index in self._indices_of_escaped_characters:
             return ''
-        else:
-            return self.src[max(0, self.pos - n):self.pos]
 
-    def getPreviousCharacter(self, should_not_start_with_escaped=True):
-        return self.getPreviousCharacters(1, should_not_start_with_escaped=should_not_start_with_escaped)
+        return self.src[max(0, self.pos - n):self.pos]
+
+    def getPreviousCharacter(self):
+        return self.getPreviousCharacters(1)
 
     def getNextCharacters(self, n):
         return self.src[self.pos + 1:self.pos + n + 1]
@@ -300,8 +299,7 @@ def minify(src):
             if it.getNextCharacter() == '{':  # functions declaration, see test t8.sh
                 if it.getPreviousCharacter() == ')':
                     continue
-                else:
-                    src += ' '
+                src += ' '
             elif prevWord in ("until", "while", "then", "do", "else", "in", "elif", "if") or \
                             nextWord in ("in",) or \
                             it.getPreviousCharacter() in ("{", "(") or \
@@ -340,14 +338,14 @@ if __name__ == "__main__":
     # http://pubs.opengroup.org/onlinepubs/9699919799/
 
     # get bash source from file or from stdin
-    src = ""
+    src_file = ""
     if len(sys.argv) > 1:
-        with open(sys.argv[1], "r") as ifile:
-            src = ifile.read()
+        with open(sys.argv[1], "r", encoding="utf-8") as ifile:
+            src_file = ifile.read()
     else:
-        src = sys.stdin.read()
+        src_file = sys.stdin.read()
     # use stdout.write instead of print to avoid newline at the end (print with comma at the end does not work)
-    sys.stdout.write(minify(src))
+    sys.stdout.write(minify(src_file))
 
 
 # important rules:
