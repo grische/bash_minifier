@@ -21,3 +21,8 @@ for f in t*.sh; do
 done
 echo "PASSED ${passed}, FAILED ${failed}"
 popd > /dev/null
+
+# Fail script if any test failed
+if [[ ${failed} -ne 0 ]]; then
+    exit 1
+fi
